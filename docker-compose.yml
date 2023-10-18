@@ -5,7 +5,7 @@ services:
     image: flask-app:latest
     container_name: flask-app-container
     build:
-      context: .
+      context: ./PANDA_backend
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
@@ -14,7 +14,12 @@ services:
     depends_on:
       - db
     environment:
+    # I'm okay exposing this for now, since it's only an internal database in the testing phase.
+    # these credentials are exposed in the db container anyway
+    # TODO: Define this in a .env file and add it to .gitignore
       - DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db
+    volumes:
+      - ./PANDA_backend:/usr/src/app
 
   db:
     image: postgres:latest
