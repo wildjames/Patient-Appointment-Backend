@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  flask-app:
+    image: flask-app:latest
+    container_name: flask-app-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - panda_network
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db
+
+  db:
+    image: postgres:latest
+    container_name: postgres-container
+    networks:
+      - panda_network
+    environment:
+      POSTGRES_DB: panda_db
+      POSTGRES_USER: panda_user
+      POSTGRES_PASSWORD: panda_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+networks:
+  panda_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

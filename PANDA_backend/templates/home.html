@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Connection Test</title>
+</head>
+<body>
+    <h1>Database Connection Test</h1>
+    {% if tables %}
+        <p>Tables in the database:</p>
+        <ul>
+            {% for table in tables %}
+                <li>{{ table[0] }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tables found in the database.</p>
+    {% endif %}
+</body>
+</html>
