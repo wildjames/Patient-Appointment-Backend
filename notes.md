@@ -93,15 +93,17 @@ Wrote a lot of code so far, faster than I'd like. I worry that I've not been car
 
 Honestly, the appointments seem more complex so may take some time. There is a chance that I may need to sacrifice some rigour in the patients side, to get the appointments functioning.
 
-I've added in the appointments, and written some very basic tests for the endpoints. 
+I've added in the appointments, and written some very basic tests for the endpoints. I also fixed the database problem, all I needed was a dedicated test database. A silly oversight on my part, there.
 
-Added some data validation functions. I tend to use Django more than flask (I only really use flask when something needs to be lightweight), so I have less experience with some of the tooling, and I've not done data validation in this framework before. Some basic research tells me that I could use tools like WTForms and Marshmallow, but I don't have time to learn a new tool right now so I'll just do it by hand. There's only a small number of checks I need, anyway.
+Added some data validation functions. I tend to use Django more than flask (I only really use flask when something needs to be lightweight), so I have less experience with some of the tooling, and I've not done data validation in this framework before. Some basic research tells me that I could use tools like WTForms and Marshmallow, but I don't have time to learn a new tool right now so I'll just do it by hand. There's only a small number of checks I need, anyway. However, doing it manually is not often the most scalable way to go about things.
 
 Note that my validation actually breaks the tests - some of the example postcodes are given in "wrong-ish" formats, like "AB123CD" rather than "AB12 3CD". I'll need to update them to account for that.
+
+I'm using the ukpostcodeparser library to handle parsing UK postcodes. I've used it a little in the past, so I'm aware it's not perfect. It can catch legal-*looking* postcodes, and think they're valid, for example "SSS6 6HU" is legal, technically speaking, but does not exist in the UK. Good enough for now.
 
 TODO: It's just occurred to me that I didn't think to make the endpoints async. This is fine for now, but needs to be fixed later!
 
 I've been neglecting detailed docs for the API - namely, the structure of the data needs to be defined, and which actions are allowed needs to be specified. I'll do that next.
 
-I've run out of time, and the utils don't have good tests for them. Unfortunately, that's going to have to go in "future work", and whilst I'm fairly confident in the logic I doubt they're bug-free. 
+I've run out of time, and the utils don't have good tests for them. Unfortunately, that's going to have to go in "future work", and whilst I'm fairly confident in the logic I doubt they're bug-free. However, I did get a decent amount of the stuff done, and if it's not obvious from my notes, I've been slotting work on this around an exceptionally hectic week... Oh well!
 
