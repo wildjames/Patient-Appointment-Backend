@@ -33,7 +33,7 @@ class Patient(db.Model):
     postcode = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
-        return "<id {}>".format(self.id)
+        return "<Patient {}>".format(self.nhs_number)
 
     def serialize(self):
         return {
