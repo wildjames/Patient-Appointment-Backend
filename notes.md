@@ -1,5 +1,34 @@
 # PANDA
 
+### Hard requirements:
+- [x] It should be possible to add patients to and remove them from the PANDA.
+- [x] It should be possible to check and update patient details in the PANDA.
+- [ ] It should be possible to add new appointments to the PANDA, and check and update appointment details.
+- [x] The PANDA may need to be restarted for maintenance, and the data should be persisted.
+- [x] The PANDA backend should communicate with the frontend via some sort of HTTP API.
+- [x] The PANDA API does not need to handle authentication because it is used within a trusted environment.
+- [ ] Errors should be reported to the user.
+  
+
+### Soft requirements:
+
+- [x] The client has been burned by vendor lock-in in the past, and prefers working with smaller frameworks.
+  - We've gone with Flask to meet this.
+- [ ] The client highly values automated tests, particularly those which ensure their business logic is implemented correctly.
+  - A test suite is in progress, using `pytest`.
+- [x] The client is in negotiation with several database vendors, and is interested in being database-agnostic if possible.
+  - The current implementation uses `postgres`, but via `SQLAlchemy`. This should make transitioning to another database provider relatively easy.
+- [ ] The client is somewhat concerned that missed appointments waste significant amounts of clinicians' time, and is interested in tracking the impact this has over time on a per-clinician and per-department basis.
+- [ ] The PANDA currently doesn't contain much data about clinicians, but will eventually track data about the specific organisations they currently work for and where they work from.
+  - This should be easily added using another database model.
+- [ ] The client is interested in branching out into foreign markets, it would be useful if error messages could be localised.
+- [x] The client would like to ensure that patient names can be represented correctly, in line with GDPR.
+  - The test cases contain names like "महावीर, जगन्नाथ", which I believe covers this kind of thing.
+
+
+
+## Plan
+
 Broadly speaking, I'll go through the following steps:
 
 1. Project Setup and Configuration
@@ -22,11 +51,11 @@ Broadly speaking, I'll go through the following steps:
    - Implement postcode formatting and validation.
    - Implement patient name validation in line with GDPR.
 
-6. Testing
+5. Testing
    - Write unit tests to ensure business logic is correctly implemented.
    - Write integration tests to ensure the API endpoints work as expected.
 
-7. **Documentation**
+6. **Documentation**
    - Document how to set up and run the API.
    - Document how to interact with the API, including example requests and responses.
 
@@ -39,3 +68,19 @@ The client wants to use the most lightweight framework they can. Whilst I would 
 ## Encapsulation - Docker
 
 This will need a database. I'm going with POSTGRES, but not for any particular reason. I'll use a docker-compose stack to bundle this together. 
+
+
+# Build logs
+
+Defined a model - patients seem simple, so I'll start there. No validation yet, but I'll add it later. I want tests from the beginning, so I've written a reasonable test suite, which runs through all the example names - I looked through them, and I see some styles of names that I might not have thought to check myself. Very useful.
+
+The tests pass, but I had a bit of a hitch with testing. I wanted to have the docker stack test the app when the container is built, but the test I wrote tears down the database when it's done. I need to fix that. In the meantime, I'll just deal with tests resetting the database - we have no prod data yet, so for the time being that's okay.
+
+Wrote a lot of code so far, faster than I'd like. I worry that I've not been careful enough, so I'll make a note to do a code review ASAP. However, I've still not got to the input validation... My TODO list (in order) currently looks like this:
+- Patient input validation
+- Document what inputs are valid for Patients
+- Fix the tests to not nuke the database
+- Implement the appointments
+
+Honestly, the appointments seem more complex so may take some time. There is a chance that I may need to sacrifice some rigour in the patients side, to get the appointments functioning.
+

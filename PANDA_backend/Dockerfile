@@ -1,11 +1,14 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.10-buster
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
 # Copy the local package directories to the container
 COPY . .
+
+# Install netcat to wait for the database to be ready
+RUN apt-get update && apt-get install -y netcat
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

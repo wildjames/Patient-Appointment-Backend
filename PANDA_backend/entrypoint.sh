@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Wait for the database
+while ! nc -z db 5432; do
+  echo "Waiting for the PostgreSQL database..."
+  sleep 1
+done
+echo "Database is ready."
+
 # Check if the migrations directory exists
 if [ ! -d "migrations" ]; then
     # Initialize the database and migrations
