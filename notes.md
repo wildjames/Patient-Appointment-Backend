@@ -3,11 +3,11 @@
 ### Hard requirements:
 - [x] It should be possible to add patients to and remove them from the PANDA.
 - [x] It should be possible to check and update patient details in the PANDA.
-- [ ] It should be possible to add new appointments to the PANDA, and check and update appointment details.
+- [x] It should be possible to add new appointments to the PANDA, and check and update appointment details.
 - [x] The PANDA may need to be restarted for maintenance, and the data should be persisted.
 - [x] The PANDA backend should communicate with the frontend via some sort of HTTP API.
 - [x] The PANDA API does not need to handle authentication because it is used within a trusted environment.
-- [ ] Errors should be reported to the user.
+- [x] Errors should be reported to the user.
   
 
 ### Soft requirements:
@@ -84,3 +84,4 @@ Wrote a lot of code so far, faster than I'd like. I worry that I've not been car
 
 Honestly, the appointments seem more complex so may take some time. There is a chance that I may need to sacrifice some rigour in the patients side, to get the appointments functioning.
 
+I've added in the appointments, and written some very basic tests for the endpoints. 

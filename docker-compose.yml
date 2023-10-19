@@ -18,12 +18,13 @@ services:
     # these credentials are exposed in the db container anyway
     # TODO: Define this in a .env file and add it to .gitignore
       - DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db
+      - TEST_DATABASE_URL=postgresql://panda_user:panda_pass@db-test/panda_db
     volumes:
       - ./PANDA_backend:/usr/src/app
 
   db:
     image: postgres:latest
-    container_name: postgres-container
+    container_name: production-db-container
     networks:
       - panda_network
     environment:
@@ -33,9 +34,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  db-test:
+    image: postgres:latest
+    container_name: test-db-container
+    networks:
+      - panda_network
+    environment:
+      POSTGRES_DB: panda_db
+      POSTGRES_USER: panda_user
+      POSTGRES_PASSWORD: panda_pass
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+
 networks:
   panda_network:
     driver: bridge
 
 volumes:
   postgres_data:
+  test_postgres_data:

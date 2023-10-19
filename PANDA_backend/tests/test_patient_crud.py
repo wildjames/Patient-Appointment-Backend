@@ -1,8 +1,9 @@
 import pytest
 from datetime import date
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 import json
-import random
 
 from ..app import app, db, Patient
 
@@ -10,7 +11,7 @@ from ..app import app, db, Patient
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
     client = app.test_client()
 
     # Setup the application and database for testing
@@ -55,12 +56,7 @@ def test_get_patient(client):
     for example_patient in example_patients:
         with app.app_context():
             # Add a patient to the database
-            patient = Patient(
-                nhs_number=example_patient["nhs_number"],
-                name=example_patient["name"],
-                date_of_birth=example_patient["date_of_birth"],
-                postcode=example_patient["postcode"],
-            )
+            patient = Patient(**example_patient)
 
             db.session.add(patient)
             db.session.commit()
@@ -82,12 +78,7 @@ def test_update_patient(client):
     for example_patient in example_patients:
         with app.app_context():
             # Add a patient to the database
-            patient = Patient(
-                nhs_number=example_patient["nhs_number"],
-                name=example_patient["name"],
-                date_of_birth=example_patient["date_of_birth"],
-                postcode=example_patient["postcode"],
-            )
+            patient = Patient(**example_patient)
 
             db.session.add(patient)
             db.session.commit()
@@ -131,12 +122,7 @@ def test_bad_update_patient(client):
     for example_patient in example_patients:
         with app.app_context():
             # Add a patient to the database
-            patient = Patient(
-                nhs_number=example_patient["nhs_number"],
-                name=example_patient["name"],
-                date_of_birth=example_patient["date_of_birth"],
-                postcode=example_patient["postcode"],
-            )
+            patient = Patient(**example_patient)
 
             db.session.add(patient)
             db.session.commit()
@@ -160,12 +146,7 @@ def test_delete_patient(client):
     for example_patient in example_patients:
         with app.app_context():
             # Add a patient to the database
-            patient = Patient(
-                nhs_number=example_patient["nhs_number"],
-                name=example_patient["name"],
-                date_of_birth=example_patient["date_of_birth"],
-                postcode=example_patient["postcode"],
-            )
+            patient = Patient(**example_patient)
 
             db.session.add(patient)
             db.session.commit()
