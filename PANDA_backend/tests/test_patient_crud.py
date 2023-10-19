@@ -6,6 +6,7 @@ import os
 import json
 
 from ..app import app, db, Patient
+from ..utils.validators import format_postcode
 
 # Setup Flask's test client
 @pytest.fixture
@@ -43,7 +44,7 @@ def test_add_patient(client):
             assert patient.date_of_birth == date.fromisoformat(
                 example_patient["date_of_birth"]
             )
-            assert patient.postcode == example_patient["postcode"]
+            assert patient.postcode == format_postcode(example_patient["postcode"])
 
 
 def test_get_patient(client):
@@ -68,7 +69,7 @@ def test_get_patient(client):
             assert (
                 response.get_json()["date_of_birth"] == example_patient["date_of_birth"]
             )
-            assert response.get_json()["postcode"] == example_patient["postcode"]
+            assert response.get_json()["postcode"] == format_postcode(example_patient["postcode"])
 
 
 def test_update_patient(client):
@@ -102,7 +103,7 @@ def test_update_patient(client):
                 json={
                     "name": "Another Name",
                     "date_of_birth": "1971-06-02",
-                    "postcode": "AB123CD",
+                    "postcode": "AB123CD", # Should be formatted to "AB12 3CD"
                 },
             )
             assert response.status_code == 200
@@ -112,7 +113,7 @@ def test_update_patient(client):
             updated_patient = db.session.get(Patient, patient.nhs_number)
             assert updated_patient.name == "Another Name"
             assert updated_patient.date_of_birth == date.fromisoformat("1971-06-02")
-            assert updated_patient.postcode == "AB123CD"
+            assert updated_patient.postcode == "AB12 3CD"
 
 
 def test_bad_update_patient(client):

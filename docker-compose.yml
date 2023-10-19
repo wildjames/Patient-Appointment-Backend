@@ -13,6 +13,7 @@ services:
       - panda_network
     depends_on:
       - db
+      - db-test
     environment:
     # I'm okay exposing this for now, since it's only an internal database in the testing phase.
     # these credentials are exposed in the db container anyway

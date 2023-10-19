@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Set the python path to include the /usr/src/app directory (otherwise imports break)
+export PYTHONPATH="${PYTHONPATH}:/usr/src/app"
+
 # Wait for the testing database
 while ! nc -z db-test 5432; do
   echo "Waiting for the PostgreSQL database..."
@@ -36,4 +39,4 @@ flask db upgrade
 
 # Start the Flask application
 echo "Starting the Flask application"
-exec flask run
+exec python app.py

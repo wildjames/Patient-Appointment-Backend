@@ -85,3 +85,8 @@ Wrote a lot of code so far, faster than I'd like. I worry that I've not been car
 Honestly, the appointments seem more complex so may take some time. There is a chance that I may need to sacrifice some rigour in the patients side, to get the appointments functioning.
 
 I've added in the appointments, and written some very basic tests for the endpoints. 
+
+Added some data validation functions. I tend to use Django more than flask (I only really use flask when something needs to be lightweight), so I have less experience with some of the tooling, and I've not done data validation in this framework before. Some basic research tells me that I could use tools like WTForms and Marshmallow, but I don't have time to learn a new tool right now so I'll just do it by hand. There's only a small number of checks I need, anyway.
+
+Note that my validation actually breaks the tests - some of the example postcodes are given in "wrong-ish" formats, like "AB123CD" rather than "AB12 3CD". I'll need to update them to account for that.
+

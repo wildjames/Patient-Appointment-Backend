@@ -24,10 +24,11 @@ def is_valid_state_change(old_status, new_status):
         logger.info(f"Cannot reactivate cancelled appointment")
         return False
 
-    if old_status == "missed" and new_status == "active":
-        # Missed appointments cannot be reactivated, but may be flagged as attended after all, or cancelled
-        logger.info(f"Cannot reactivate missed appointment")
-        return False
+    # TODO: Do we want something like this, too?
+    # if old_status == "missed" and new_status == "active":
+    #     # Missed appointments cannot be reactivated, but may be flagged as attended after all, or cancelled
+    #     logger.info(f"Cannot reactivate missed appointment")
+    #     return False
 
     return True
 

@@ -6,7 +6,7 @@ from sqlalchemy import text
 from uuid import uuid4
 from datetime import datetime
 
-from .utils.validators import (
+from utils.validators import (
     validate_nhs_number,
     format_postcode,
     is_valid_appointment_status,
