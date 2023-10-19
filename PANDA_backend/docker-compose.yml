@@ -5,7 +5,7 @@ services:
     image: flask-app:latest
     container_name: flask-app-container
     build:
-      context: ./PANDA_backend
+      context: .
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
@@ -22,7 +22,7 @@ services:
       - TEST_DATABASE_URL=postgresql://panda_user:panda_pass@db-test/panda_db
       - FLASK_APP=app.py
     volumes:
-      - ./PANDA_backend:/usr/src/app
+      - .:/usr/src/app
 
   db:
     image: postgres:latest
