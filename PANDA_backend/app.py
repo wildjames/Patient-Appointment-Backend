@@ -183,6 +183,8 @@ def update_patient(nhs_number):
                     f"Updating patient record field: {field} from {getattr(patient, field)} to {data[field]}"
                 )
                 setattr(patient, field, data[field])
+            else:
+                return jsonify({"message": "Invalid field"}), 400
 
         db.session.commit()
         logger.info(
@@ -359,6 +361,8 @@ def update_appointment(id):
                 setattr(appointment, field, datetime.fromisoformat(data[field]))
             else:
                 setattr(appointment, field, data[field])
+        else:
+            return jsonify({"message": "Invalid field"}), 400
 
     # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
     # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
