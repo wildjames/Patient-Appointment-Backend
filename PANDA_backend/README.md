@@ -53,27 +53,33 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 ## **3. Database Configuration**
 
 The application requires access to a PostgreSQL database, the credentials of which are provided using the `DATABASE_URL` environment variable.
-Create `DATABASE_URL` and assign the database connection string to it, for example:
+Create `SQLALCHEMY_DATABASE_URI` and assign the database connection string to it, for example:
 
 ```bash
-export DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db
+export SQLALCHEMY_DATABASE_URI=postgresql://panda_user:panda_pass@db/panda_db
 ```
 
 Or, define it in-line
 
 ```bash
-DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db python3 app.py
+SQLALCHEMY_DATABASE_URI=postgresql://panda_user:panda_pass@db/panda_db python3 app.py
 ```
 
 This environment variable allows the application to connect to the PostgreSQL database using the provided username, password, and database name.
 
-There is also a test database variable, which will set the database to use for testing. This is set similarly to the above:
+## **4. Testing**
+
+There are pytests for this codebase. Currently, these are designed to run before the app starts within the docker compose stack. However, running them outside the stack messes with the imports. To hack around this, you will need to add the repository to your `PYTHONPATH`.
 
 ```bash
-export TEST_DATABASE_URL=postgresql://panda_user:panda_pass@db-test/panda_db
+export PYTHONPATH="${PYTHONPATH}:/path/to/PANDA/PANDA/backend"
 ```
 
-If this is not set, the tests will fail to run.
+Then, ensure that the `SQLALCHEMY_DATABASE_URI` environment variable is set, and points to a valid database, and run:
+
+```bash
+pytest -v tests
+```
 
 # API usage
 
