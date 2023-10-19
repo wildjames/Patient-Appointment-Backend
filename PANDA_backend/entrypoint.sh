@@ -21,12 +21,12 @@ echo "Prod database is ready."
 # And set the database URL
 export SQLALCHEMY_DATABASE_URI=${DATABASE_URL}
 
-# # Check if the migrations directory exists
-# if [ ! -d "migrations" ]; then
-#     # Initialize the database and migrations
-# fi
-echo "Initializing database and migrations"
-flask db init
+# Check if the migrations directory exists
+if [ ! -d "migrations" ]; then
+  # Initialize the database and migrations
+  echo "Initializing database and migrations"
+  flask db init
+fi
 
 # Run migrations
 echo "Running migrations"
