@@ -242,7 +242,7 @@ The API responds with JSON formatted data, and expects requests that supply data
 
 ## Error Handling
 
-- **NHS Number:** Must be a valid 10-character string. Invalid NHS numbers will result in a 400 Bad Request.
+- **NHS Number:** Must be a valid 10-character string, and conform to the [checksum](https://www.datadictionary.nhs.uk/attributes/nhs_number.html). Invalid NHS numbers will result in a 400 Bad Request.
 - **Postcode:** Must be a valid string. Invalid postcodes will be rejected, resulting in a 400 Bad Request.
 - **Appointment Status:** Must be a valid string representing the appointment status. Invalid statuses will result in a 400 Bad Request.
 - **Date and Time:** Must follow the format `YYYY-MM-DDTHH:MM:SS+TZ`. Incorrect formats will result in errors.
