@@ -2,16 +2,19 @@ import requests
 import json
 import random
 
-BASE_URL = "http://127.0.0.1:5000/patients/"  # Adjust the URL if your app is hosted elsewhere
+BASE_URL = "http://127.0.0.1:5000/"  # Adjust the URL if your app is hosted elsewhere
 
 
-def load_example_patients():
-    with open("PANDA_backend/tests/example-patients.json", "r") as file:
+def load_example_data(filename):
+    with open(filename, "r") as file:
         return json.load(file)
 
 
-def get_random_patient(example_patients):
-    return random.choice(example_patients)
+def get_random_data(data_list):
+    return random.choice(data_list)
+
+
+### Patients ###
 
 
 def get_patient_details():
@@ -23,66 +26,150 @@ def get_patient_details():
 
 
 def add_patient(patient_data):
-    response = requests.post(BASE_URL, json=patient_data)
+    response = requests.post(f"{BASE_URL}patients/", json=patient_data)
     print(response)
     print(response.json())
 
 
 def get_patient(nhs_number):
-    response = requests.get(f"{BASE_URL}{nhs_number}/")
+    response = requests.get(f"{BASE_URL}patients/{nhs_number}/")
     print(response.json())
 
 
 def update_patient(nhs_number):
     field = input("Which field do you want to update (name, date_of_birth, postcode)? ")
     value = input(f"Enter new value for {field}: ")
-    response = requests.put(f"{BASE_URL}{nhs_number}/", json={field: value})
+    response = requests.put(f"{BASE_URL}patients/{nhs_number}/", json={field: value})
     print(response.json())
 
 
 def delete_patient(nhs_number):
-    response = requests.delete(f"{BASE_URL}{nhs_number}/")
+    response = requests.delete(f"{BASE_URL}patients/{nhs_number}/")
     print(response.json())
 
 
+### Appointments ###
+
+
+def get_appointment_details():
+    fields = [
+        "patient",
+        "status",
+        "time",
+        "duration",
+        "clinician",
+        "department",
+        "postcode",
+    ]
+    appointment_data = {}
+    for field in fields:
+        appointment_data[field] = input(f"Enter {field.replace('_', ' ')}: ")
+    return appointment_data
+
+
+def add_appointment(appointment_data):
+    response = requests.post(f"{BASE_URL}appointments/", json=appointment_data)
+    print(response)
+    print(response.json())
+
+
+def get_appointment(appointment_id):
+    response = requests.get(f"{BASE_URL}appointments/{appointment_id}/")
+    print(response.json())
+
+
+def update_appointment(appointment_id):
+    field = input(
+        "Which field do you want to update (patient, status, time, duration, clinician, department, postcode)? "
+    )
+    value = input(f"Enter new value for {field}: ")
+    response = requests.put(
+        f"{BASE_URL}appointments/{appointment_id}/", json={field: value}
+    )
+    print(response.json())
+
+
+def delete_appointment(appointment_id):
+    response = requests.delete(f"{BASE_URL}appointments/{appointment_id}/")
+    print(response.json())
+
+
+### Main ###
+
 if __name__ == "__main__":
     while True:
-        action = input("Do you want to (1) Fetch, (2) Create, (3) Update, or (4) Delete the patient? (Anything else to exit) ")
+        entity = input(
+            "Do you want to manage (1) Patients or (2) Appointments? (Anything else to exit) "
+        )
 
-        if action == "1":
-            nhs_number = input("Enter NHS number of patient to fetch: ")
-            get_patient(nhs_number)
+        # Choose which functions are relevant
+        if entity in ["1", "2"]:
+            action = input(
+                "Do you want to (1) Fetch, (2) Create, (3) Update, or (4) Delete? (Anything else to exit) "
+            )
 
-        elif action == "2":
-            example_patients = load_example_patients()
+            if entity == "1":
+                entity_name, example_file = (
+                    "patient",
+                    "PANDA_backend/tests/example-patients.json",
+                )
+                get_func, add_func, update_func, delete_func = (
+                    get_patient,
+                    add_patient,
+                    update_patient,
+                    delete_patient,
+                )
+            else:
+                entity_name, example_file = (
+                    "appointment",
+                    "PANDA_backend/tests/example-appointments.json",
+                )
+                get_func, add_func, update_func, delete_func = (
+                    get_appointment,
+                    add_appointment,
+                    update_appointment,
+                    delete_appointment,
+                )
 
-            choice = input("Do you want to (1) Load random example, or (2) Manually define patient? ")
+            # Choose which function to run
+            if action == "1":
+                entity_id = input(f"Enter ID of {entity_name} to fetch: ")
+                get_func(entity_id)
 
-            if choice == "1":
-                patient_data = get_random_patient(example_patients)
-                print("Loaded patient: ")
-                print(f"  NHS number: {patient_data['nhs_number']}")
-                print(f"  Name: {patient_data['name']}")
-                print(f"  Date of birth: {patient_data['date_of_birth']}")
-                print(f"  Postcode: {patient_data['postcode']}")
-                print("")
-                
-            elif choice == "2":
-                patient_data = get_patient_details()
-                
-            add_patient(patient_data)
-            
-        elif action == "3":
-            nhs_number = input("Enter NHS number of patient to update: ")
-            update_patient(nhs_number)
-        
-        elif action == "4":
-            nhs_number = input("Enter NHS number of patient to delete: ")
-            delete_patient(nhs_number)
-            
-        else:
+            elif action == "2":
+                choice = input(
+                    f"Do you want to (1) Load random example, or (2) Manually define {entity_name}? "
+                )
+
+                if choice == "1":
+                    entity_data = get_random_data(load_example_data(example_file))
+                    print(f"Loaded {entity_name}: ")
+                    for key, value in entity_data.items():
+                        print(f"  {key.capitalize()}: {value}")
+                    print("")
+
+                elif choice == "2":
+                    entity_data = (
+                        get_patient_details()
+                        if entity == "1"
+                        else get_appointment_details()
+                    )
+
+                add_func(entity_data)
+
+            elif action == "3":
+                entity_id = input(f"Enter ID of {entity_name} to update: ")
+                update_func(entity_id)
+
+            elif action == "4":
+                entity_id = input(f"Enter ID of {entity_name} to delete: ")
+                delete_func(entity_id)
+
+            else:
+                exit()
+
+            print("")
+            print("")
+            print("")
+        else: 
             exit()
-            
-        print("")
-        print("")
-        print("")
