@@ -5,8 +5,13 @@ from flask_migrate import Migrate
 from sqlalchemy import text
 from uuid import uuid4
 from datetime import datetime
-import pytz
 
+from .utils.validators import (
+    validate_nhs_number,
+    format_postcode,
+    is_valid_appointment_status,
+    is_valid_state_change,
+)
 
 from logging import getLogger, basicConfig, INFO, DEBUG
 
@@ -91,13 +96,27 @@ def home():
 def add_patient():
     logger.info(f"Adding a patient record...")
     data = request.get_json()
-    
+
     # First, check that that NHS number is not taken
     patient = db.session.get(Patient, data["nhs_number"])
     if patient:
-        logger.info(f"Patient record with NHS number: {data['nhs_number']} already exists")
+        logger.info(
+            f"Patient record with NHS number: {data['nhs_number']} already exists"
+        )
         return jsonify({"message": "Patient already exists"}), 409
-    
+
+    # Validate the NHS number
+    if not validate_nhs_number(data["nhs_number"]):
+        logger.info(f"Invalid NHS number: {data['nhs_number']}")
+        return jsonify({"message": "Invalid NHS number"}), 400
+
+    # Format the postcode
+    data["postcode"] = format_postcode(data["postcode"])
+    if not data["postcode"]:
+        logger.info(f"[{data['nhs_number']}] Invalid postcode: {data['postcode']}")
+        return jsonify({"message": "Invalid postcode"}), 400
+
+    # Create the new patient record
     new_patient = Patient(
         nhs_number=data["nhs_number"],
         name=data["name"],
@@ -144,6 +163,15 @@ def update_patient(nhs_number):
 
         # Can we update the NHS number?
         # patient.nhs_number = data["nhs_number"]
+        
+        # If we got a postcode, make sure it's valid
+        if "postcode" in data:
+            data["postcode"] = format_postcode(data["postcode"])
+            
+            # And if it's not, return an error
+            if not data["postcode"]:
+                logger.info(f"[{nhs_number}] Invalid postcode: {data['postcode']}")
+                return jsonify({"message": "Invalid postcode"}), 400
 
         # Default to the existing value if the new value is not provided
         fields = ["name", "date_of_birth", "postcode"]
@@ -187,14 +215,31 @@ def delete_patient(nhs_number):
 def add_appointment():
     logger.info(f"Adding a new appointment...")
     data = request.get_json()
-    
+
     # First, check that that appointment ID is not taken
     if "id" in data:
         appointment = db.session.get(Appointment, data["id"])
         if appointment:
             logger.info(f"Appointment with ID: {data['id']} already exists")
             return jsonify({"message": "Appointment already exists"}), 409
+
+    # Validate the NHS number
+    if not validate_nhs_number(data["patient"]):
+        logger.info(f"Invalid NHS number: {data['patient']}")
+        return jsonify({"message": "Invalid NHS number"}), 400
     
+    # Format the postcode
+    data["postcode"] = format_postcode(data["postcode"])
+    if not data["postcode"]:
+        logger.info(f"[{data['id']}] Invalid postcode: {data['postcode']}")
+        return jsonify({"message": "Invalid postcode"}), 400
+    
+    # Validate the appointment status
+    if not is_valid_appointment_status(data["status"]):
+        logger.info(f"Invalid appointment status: {data['status']}")
+        return jsonify({"message": "Invalid appointment status"}), 400
+
+    # Create the new appointment
     new_appointment = Appointment(
         # If the ID is provided, use it, otherwise generate a new one
         id=data.get("id", str(uuid4())),
@@ -243,6 +288,36 @@ def update_appointment(id):
 
     logger.info(f"Found appointment with ID: {id}")
     data = request.get_json()
+    
+    # Validate the appointment status
+    if "status" in data:
+        if not is_valid_appointment_status(data["status"]):
+            logger.info(f"Invalid appointment status: {data['status']}")
+            return jsonify({"message": "Invalid appointment status"}), 400
+
+        # Validate the state change
+        if not is_valid_state_change(appointment.status, data["status"]):
+            logger.info(
+                f"Invalid state change: {appointment.status} -> {data['status']}"
+            )
+            return jsonify({"message": "Invalid state change"}), 400
+    
+    # If we got a postcode, make sure it's valid
+    if "postcode" in data:
+        data["postcode"] = format_postcode(data["postcode"])
+        
+        # And if it's not, return an error
+        if not data["postcode"]:
+            logger.info(f"[{id}] Invalid postcode: {data['postcode']}")
+            return jsonify({"message": "Invalid postcode"}), 400
+    
+    # TODO: Can we update the patient? 
+    if "patient" in data:
+        # Validate the NHS number
+        if not validate_nhs_number(data["patient"]):
+            logger.info(f"Invalid NHS number: {data['patient']}")
+            return jsonify({"message": "Invalid NHS number"}), 400
+    
     fields = [
         "patient",
         "status",

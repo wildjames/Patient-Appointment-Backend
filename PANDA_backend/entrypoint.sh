@@ -36,4 +36,4 @@ flask db upgrade
 
 # Start the Flask application
 echo "Starting the Flask application"
-exec python app.py
+exec flask run

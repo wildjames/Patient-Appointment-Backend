@@ -19,6 +19,7 @@ services:
     # TODO: Define this in a .env file and add it to .gitignore
       - DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db
       - TEST_DATABASE_URL=postgresql://panda_user:panda_pass@db-test/panda_db
+      - FLASK_APP=app.py
     volumes:
       - ./PANDA_backend:/usr/src/app
 
