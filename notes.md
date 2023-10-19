@@ -30,6 +30,7 @@
 - [ ] The PANDA currently doesn't contain much data about clinicians, but will eventually track data about the specific organisations they currently work for and where they work from.
   - This should be easily added using another database model.
 - [ ] The client is interested in branching out into foreign markets, it would be useful if error messages could be localised.
+  - Rather than having the strings for error messages encoded in the app as they are now, an Enum could be used to hold the feedback messages instead. Then, the relevant enum attribute could be formatted and returned to the user.
 - [x] The client would like to ensure that patient names can be represented correctly, in line with GDPR.
   - The test cases contain names like "महावीर, जगन्नाथ", which I believe covers this kind of thing.
 
