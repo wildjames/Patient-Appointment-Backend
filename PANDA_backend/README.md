@@ -100,145 +100,145 @@ The API responds with JSON formatted data, and expects requests that supply data
 
 ### a. **Add a New Patient**
 
-      - **Endpoint:** `/patients/`
-      - **Method:** `POST`
-      - **Description:** Adds a new patient to the database.
-      - **Request Body:**
-        ```json
-        {
-            "nhs_number": "string (10 characters)",
-            "name": "string",
-            "date_of_birth": "YYYY-MM-DD",
-            "postcode": "string"
-        }
-        ```
-      - **Responses:**
-        - **201 Created:** Patient added successfully.
-        - **400 Bad Request:** Invalid NHS number or postcode.
-        - **409 Conflict:** Patient already exists.
+- **Endpoint:** `/patients/`
+- **Method:** `POST`
+- **Description:** Adds a new patient to the database.
+- **Request Body:**
+  ```json
+  {
+      "nhs_number": "string (10 characters)",
+      "name": "string",
+      "date_of_birth": "YYYY-MM-DD",
+      "postcode": "string"
+  }
+  ```
+- **Responses:**
+  - **201 Created:** Patient added successfully.
+  - **400 Bad Request:** Invalid NHS number or postcode.
+  - **409 Conflict:** Patient already exists.
 
 ### b. **Retrieve a Specific Patient**
 
-      - **Endpoint:** `/patients/<nhs_number>/`
-      - **Method:** `GET`
-      - **Description:** Retrieves details of a specific patient using the NHS number. Returns JSON data.
-      - **Response Body:**
-        ```json
-        {
-            "nhs_number": "string (10 characters)",
-            "name": "string",
-            "date_of_birth": "YYYY-MM-DD",
-            "postcode": "string"
-        }
-        ```
-      - **Responses:**
-        - **200 OK:** Successfully retrieved the patient details.
-        - **404 Not Found:** Patient not found.
+- **Endpoint:** `/patients/<nhs_number>/`
+- **Method:** `GET`
+- **Description:** Retrieves details of a specific patient using the NHS number. Returns JSON data.
+- **Response Body:**
+  ```json
+  {
+      "nhs_number": "string (10 characters)",
+      "name": "string",
+      "date_of_birth": "YYYY-MM-DD",
+      "postcode": "string"
+  }
+  ```
+- **Responses:**
+  - **200 OK:** Successfully retrieved the patient details.
+  - **404 Not Found:** Patient not found.
 
 ### c. **Update a Specific Patient**
 
-      - **Endpoint:** `/patients/<nhs_number>/`
-      - **Method:** `PUT`
-      - **Description:** Updates details of a specific patient using the NHS number. Note that all fields are optional.
-      - **Request Body:**
-        ```json
-        {
-            "name": "string",
-            "date_of_birth": "YYYY-MM-DD",
-            "postcode": "string"
-        }
-        ```
-      - **Responses:**
-        - **200 OK:** Patient updated successfully.
-        - **400 Bad Request:** Invalid field, date of birth, or postcode.
-        - **404 Not Found:** Patient not found.
+- **Endpoint:** `/patients/<nhs_number>/`
+- **Method:** `PUT`
+- **Description:** Updates details of a specific patient using the NHS number. Note that all fields are optional.
+- **Request Body:**
+  ```json
+  {
+      "name": "string",
+      "date_of_birth": "YYYY-MM-DD",
+      "postcode": "string"
+  }
+  ```
+- **Responses:**
+  - **200 OK:** Patient updated successfully.
+  - **400 Bad Request:** Invalid field, date of birth, or postcode.
+  - **404 Not Found:** Patient not found.
 
 ### d. **Delete a Specific Patient**
 
-      - **Endpoint:** `/patients/<nhs_number>/`
-      - **Method:** `DELETE`
-      - **Description:** Deletes a specific patient using the NHS number.
-      - **Responses:**
-        - **200 OK:** Patient deleted successfully.
-        - **404 Not Found:** Patient not found.
+- **Endpoint:** `/patients/<nhs_number>/`
+- **Method:** `DELETE`
+- **Description:** Deletes a specific patient using the NHS number.
+- **Responses:**
+  - **200 OK:** Patient deleted successfully.
+  - **404 Not Found:** Patient not found.
 
 ## 3. **Appointments**
 
 ### a. **Add a New Appointment**
 
-      - **Endpoint:** `/appointments/`
-      - **Method:** `POST`
-      - **Description:** Adds a new appointment to the database.
-      - **Request Body:**
-        ```json
-        {
-            "id": "string (optional)",
-            "patient": "string (NHS number)",
-            "status": "string",
-            "time": "YYYY-MM-DDTHH:MM:SS+TZ",
-            "duration": "string",
-            "clinician": "string",
-            "department": "string",
-            "postcode": "string"
-        }
-        ```
-      - **Responses:**
-        - **201 Created:** Appointment added successfully.
-        - **400 Bad Request:** Invalid NHS number, postcode, or appointment status.
-        - **409 Conflict:** Appointment already exists.
+- **Endpoint:** `/appointments/`
+- **Method:** `POST`
+- **Description:** Adds a new appointment to the database.
+- **Request Body:**
+  ```json
+  {
+      "id": "string (optional)",
+      "patient": "string (NHS number)",
+      "status": "string",
+      "time": "YYYY-MM-DDTHH:MM:SS+TZ",
+      "duration": "string",
+      "clinician": "string",
+      "department": "string",
+      "postcode": "string"
+  }
+  ```
+- **Responses:**
+  - **201 Created:** Appointment added successfully.
+  - **400 Bad Request:** Invalid NHS number, postcode, or appointment status.
+  - **409 Conflict:** Appointment already exists.
 
 ### b. **Retrieve a Specific Appointment**
 
-      - **Endpoint:** `/appointments/<id>/`
-      - **Method:** `GET`
-      - **Description:** Retrieves details of a specific appointment using the appointment ID.
-      - **Response Body:**
-        ```json
-        {
-            "id": "string",
-            "patient": "string (NHS number)",
-            "status": "string",
-            "time": "YYYY-MM-DDTHH:MM:SS+TZ",
-            "duration": "string",
-            "clinician": "string",
-            "department": "string",
-            "postcode": "string"
-        }
-        ```
-      - **Responses:**
-        - **200 OK:** Successfully retrieved the appointment details.
-        - **404 Not Found:** Appointment not found.
+- **Endpoint:** `/appointments/<id>/`
+- **Method:** `GET`
+- **Description:** Retrieves details of a specific appointment using the appointment ID.
+- **Response Body:**
+  ```json
+  {
+      "id": "string",
+      "patient": "string (NHS number)",
+      "status": "string",
+      "time": "YYYY-MM-DDTHH:MM:SS+TZ",
+      "duration": "string",
+      "clinician": "string",
+      "department": "string",
+      "postcode": "string"
+  }
+  ```
+- **Responses:**
+  - **200 OK:** Successfully retrieved the appointment details.
+  - **404 Not Found:** Appointment not found.
 
 ### c. **Update a Specific Appointment**
 
-      - **Endpoint:** `/appointments/<id>/`
-      - **Method:** `PUT`
-      - **Description:** Updates details of a specific appointment using the appointment ID. Note that all fields are optional.
-      - **Request Body:**
-        ```json
-        {
-            "patient": "string (NHS number)",
-            "status": "string",
-            "time": "YYYY-MM-DDTHH:MM:SS+TZ",
-            "duration": "string",
-            "clinician": "string",
-            "department": "string",
-            "postcode": "string"
-        }
-        ```
-      - **Responses:**
-        - **200 OK:** Appointment updated successfully.
-        - **400 Bad Request:** Invalid field, NHS number, postcode, or appointment status.
-        - **404 Not Found:** Appointment not found.
+- **Endpoint:** `/appointments/<id>/`
+- **Method:** `PUT`
+- **Description:** Updates details of a specific appointment using the appointment ID. Note that all fields are optional.
+- **Request Body:**
+  ```json
+  {
+      "patient": "string (NHS number)",
+      "status": "string",
+      "time": "YYYY-MM-DDTHH:MM:SS+TZ",
+      "duration": "string",
+      "clinician": "string",
+      "department": "string",
+      "postcode": "string"
+  }
+  ```
+- **Responses:**
+  - **200 OK:** Appointment updated successfully.
+  - **400 Bad Request:** Invalid field, NHS number, postcode, or appointment status.
+  - **404 Not Found:** Appointment not found.
 
 ### d. **Delete a Specific Appointment**
 
-      - **Endpoint:** `/appointments/<id>/`
-      - **Method:** `DELETE`
-      - **Description:** Deletes a specific appointment using the appointment ID.
-      - **Responses:**
-        - **200 OK:** Appointment deleted successfully.
-        - **404 Not Found:** Appointment not found.
+- **Endpoint:** `/appointments/<id>/`
+- **Method:** `DELETE`
+- **Description:** Deletes a specific appointment using the appointment ID.
+- **Responses:**
+  - **200 OK:** Appointment deleted successfully.
+  - **404 Not Found:** Appointment not found.
 
 ## Error Handling
 
