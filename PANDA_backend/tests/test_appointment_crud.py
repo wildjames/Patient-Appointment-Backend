@@ -149,6 +149,36 @@ def test_get_missed_appointment(client):
         assert response.status_code == 200
         assert response.get_json()["id"] == example_appointment["id"]
         assert response.get_json()["status"] == "missed"
+        
+        # Remove the appointment
+        db.session.delete(appointment)
+        
+        # Add the appointment again, but this time as attended
+        example_appointment["status"] = "attended"
+        appointment = Appointment(**example_appointment)
+        
+        db.session.add(appointment)
+        db.session.commit()
+        
+        response = client.get(f'/appointments/{example_appointment["id"]}/')
+        assert response.status_code == 200
+        assert response.get_json()["id"] == example_appointment["id"]
+        assert response.get_json()["status"] == "attended"
+        
+        # Remove the appointment
+        db.session.delete(appointment)
+        
+        # Add the appointment again, but this time as cancelled
+        example_appointment["status"] = "cancelled"
+        appointment = Appointment(**example_appointment)
+        
+        db.session.add(appointment)
+        db.session.commit()
+        
+        response = client.get(f'/appointments/{example_appointment["id"]}/')
+        assert response.status_code == 200
+        assert response.get_json()["id"] == example_appointment["id"]
+        assert response.get_json()["status"] == "cancelled"
 
 
 def test_update_appointment(client):

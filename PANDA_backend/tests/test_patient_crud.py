@@ -91,7 +91,7 @@ def test_update_patient(client):
                     "name": "Updated Name",
                 },
             )
-            assert response.status_code == 200, patient.nhs_number
+            assert response.status_code == 200, response.get_json()
             assert response.get_json()["message"] == "Patient updated successfully"
             
             updated_patient = db.session.get(Patient, patient.nhs_number)

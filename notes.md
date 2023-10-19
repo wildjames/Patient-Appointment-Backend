@@ -12,8 +12,8 @@
 ### Data validation:
 
 - [x] Appointments can be cancelled, but cancelled appointments cannot be reinstated.
-- [ ] Appointments should be considered 'missed' if they are not set to 'attended' by the end of the appointment.
-- [ ] Ensure that all NHS numbers are checksum validated.
+- [x] Appointments should be considered 'missed' if they are not set to 'attended' by the end of the appointment.
+- [x] Ensure that all NHS numbers are checksum validated.
 - [x] Ensure that all postcodes can be coerced into the correct format.
 
 
@@ -22,7 +22,7 @@
 
 - [x] The client has been burned by vendor lock-in in the past, and prefers working with smaller frameworks.
   - We've gone with Flask to meet this.
-- [ ] The client highly values automated tests, particularly those which ensure their business logic is implemented correctly.
+- [x] The client highly values automated tests, particularly those which ensure their business logic is implemented correctly.
   - A test suite is in progress, using `pytest`.
 - [x] The client is in negotiation with several database vendors, and is interested in being database-agnostic if possible.
   - The current implementation uses `postgres`, but via `SQLAlchemy`. This should make transitioning to another database provider relatively easy.
@@ -57,7 +57,7 @@ Broadly speaking, I'll go through the following steps:
 4. Data Validation
    - Implement NHS number checksum validation.
    - Implement postcode formatting and validation.
-   - Implement patient name validation in line with GDPR.
+   - Store and report names in such a way that non-latin characters (and those with accents) can be displayed.
 
 5. Testing
    - Write unit tests to ensure business logic is correctly implemented.
@@ -67,7 +67,7 @@ Broadly speaking, I'll go through the following steps:
    - Document how to set up and run the API.
    - Document how to interact with the API, including example requests and responses.
 
-I will do my best to document as I go, 
+I will do my best to document as I go.
 
 ## Framework - Flask
 
@@ -98,5 +98,9 @@ Added some data validation functions. I tend to use Django more than flask (I on
 
 Note that my validation actually breaks the tests - some of the example postcodes are given in "wrong-ish" formats, like "AB123CD" rather than "AB12 3CD". I'll need to update them to account for that.
 
-It's just occurred to me that I didn't think to make the endpoints async. This is fine for now, but needs to be fixed later!
+TODO: It's just occurred to me that I didn't think to make the endpoints async. This is fine for now, but needs to be fixed later!
+
+I've been neglecting detailed docs for the API - namely, the structure of the data needs to be defined, and which actions are allowed needs to be specified. I'll do that next.
+
+I've run out of time, and the utils don't have good tests for them. Unfortunately, that's going to have to go in "future work", and whilst I'm fairly confident in the logic I doubt they're bug-free. 
 

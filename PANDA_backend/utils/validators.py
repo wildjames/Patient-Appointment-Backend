@@ -6,11 +6,11 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-def is_valid_appointment_status(status):
+def is_valid_appointment_status(status: str) -> bool:
     return status in ["active", "cancelled", "missed", "attended"]
 
 
-def is_valid_state_change(old_status, new_status):
+def is_valid_state_change(old_status: str, new_status: str) -> bool:
     """Appointments can be cancelled, but cancelled appointments cannot be reinstated."""
     if old_status == "active" and new_status in [
         "attended",
@@ -35,13 +35,46 @@ def is_valid_state_change(old_status, new_status):
     return True
 
 
-def validate_nhs_number(nhs_number):
-    # TODO: Implement this: https://www.datadictionary.nhs.uk/attributes/nhs_number.html
-    # Return True if valid, False otherwise
-    return True
+def compute_check_digit(nhs_number: str) -> int:
+    """Compute the check digit for an NHS number. 
+    Described here: https://www.datadictionary.nhs.uk/attributes/nhs_number.html"""
+    
+    factors = [10, 9, 8, 7, 6, 5, 4, 3, 2]
+    total = 0
+
+    for i in range(9):
+        total += int(nhs_number[i]) * factors[i]
+
+    remainder = total % 11
+    check_digit = 11 - remainder
+
+    if check_digit == 11:
+        check_digit = 0
+        
+    return check_digit
 
 
-def format_postcode(postcode):
+def validate_nhs_number(nhs_number: str):
+    """The NHS number goes through a checksum algorithm, described here: https://www.datadictionary.nhs.uk/attributes/nhs_number.html
+    
+    Returns True if the NHS number is valid, False otherwise."""
+    # Regex check to see if it's 10 digits
+    regex = re.compile(r"^\d{10}$")
+    if not regex.match(nhs_number):
+        return False
+    
+    if len(nhs_number) != 10 or not nhs_number.isdigit():
+        return False
+    
+    check_digit = compute_check_digit(nhs_number)
+
+    if check_digit == 10:
+        return False
+
+    return check_digit == int(nhs_number[9])
+
+
+def format_postcode(postcode: str) -> bool:
     """Leverage the ukpostcodeparser library to coerce a postcode into the correct format.
 
     Returns the postcode in the format "AA11 1AA" or None if the postcode is invalid.
@@ -56,7 +89,7 @@ def format_postcode(postcode):
     return " ".join(postcode_chunks)
 
 
-def parse_duration(duration_str):
+def parse_duration(duration_str: str) -> timedelta:
     """Parse the duration string to get total minutes.
 
     Returns a timedelta object."""
@@ -74,12 +107,12 @@ def parse_duration(duration_str):
     return timedelta(hours=hours, minutes=minutes)
 
 
-def check_if_missed_appointment(appointment):
+def check_if_missed_appointment(appointment) -> bool:
     """Check if the appointment was missed. Returns a boolean."""
     # If we have a model, convert it to a dictionary
     if hasattr(appointment, "serialize"):
         appointment = appointment.serialize()
-    
+
     # Only active appointments can be missed
     if appointment["status"] != "active":
         logger.info(

@@ -177,15 +177,17 @@ def update_patient(nhs_number):
 
         # Default to the existing value if the new value is not provided
         fields = ["name", "date_of_birth", "postcode"]
+        for field in data.keys():
+            if field not in fields:
+                return jsonify({"message": "Invalid field"}), 400
+        
         for field in fields:
             if field in data:
                 logger.info(
                     f"Updating patient record field: {field} from {getattr(patient, field)} to {data[field]}"
                 )
                 setattr(patient, field, data[field])
-            else:
-                return jsonify({"message": "Invalid field"}), 400
-
+            
         db.session.commit()
         logger.info(
             f"Database updated for patient record with NHS number: {nhs_number}"
@@ -342,6 +344,8 @@ def update_appointment(id):
             logger.info(f"Invalid NHS number: {data['patient']}")
             return jsonify({"message": "Invalid NHS number"}), 400
 
+    # Build the modified appointment object
+    # Default to the existing value if the new value is not provided. 
     fields = [
         "patient",
         "status",
@@ -351,6 +355,11 @@ def update_appointment(id):
         "department",
         "postcode",
     ]
+    
+    for field in data.keys():
+        if field not in fields:
+            return jsonify({"message": "Invalid field"}), 400
+    
     for field in fields:
         if field in data:
             logger.info(
@@ -361,8 +370,6 @@ def update_appointment(id):
                 setattr(appointment, field, datetime.fromisoformat(data[field]))
             else:
                 setattr(appointment, field, data[field])
-        else:
-            return jsonify({"message": "Invalid field"}), 400
 
     # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
     # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
