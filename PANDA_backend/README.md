@@ -44,9 +44,7 @@ python3 app.py
 
 ### **Production Mode**
 
-For a production environment, it is recommended to use a WSGI server like `Gunicorn` or `uWSGI`. This approach allows the application to handle more users by providing load balancing and worker processes.
-
-Example using Gunicorn:
+For a production environment, it is generally recommended to use a WSGI server like `Gunicorn` or `uWSGI`. For example, using Gunicorn (**untested**):
 
 ```bash
 gunicorn -w 4 -b 0.0.0.0:5000 app:app
@@ -68,3 +66,11 @@ DATABASE_URL=postgresql://panda_user:panda_pass@db/panda_db python3 app.py
 ```
 
 This environment variable allows the application to connect to the PostgreSQL database using the provided username, password, and database name.
+
+There is also a test database variable, which will set the database to use for testing. This is set similarly to the above:
+
+```bash
+export TEST_DATABASE_URL=postgresql://panda_user:panda_pass@db-test/panda_db
+```
+
+If this is not set, the tests will fail to run.

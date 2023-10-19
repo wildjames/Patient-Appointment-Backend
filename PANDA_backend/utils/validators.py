@@ -1,4 +1,6 @@
 import ukpostcodeparser
+from datetime import datetime, timedelta
+import re
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -41,7 +43,7 @@ def validate_nhs_number(nhs_number):
 
 def format_postcode(postcode):
     """Leverage the ukpostcodeparser library to coerce a postcode into the correct format.
-    
+
     Returns the postcode in the format "AA11 1AA" or None if the postcode is invalid.
     """
     logger.info(f"Formatting postcode: {postcode}")
@@ -52,3 +54,59 @@ def format_postcode(postcode):
         return None
 
     return " ".join(postcode_chunks)
+
+
+def parse_duration(duration_str):
+    """Parse the duration string to get total minutes.
+
+    Returns a timedelta object."""
+    hours = 0
+    minutes = 0
+
+    # Extract hours and minutes using regex
+    matches = re.findall(r"(\d+h)?(\d+m)?", duration_str)
+    for match in matches:
+        if match[0]:
+            hours += int(match[0][:-1])
+        if match[1]:
+            minutes += int(match[1][:-1])
+
+    return timedelta(hours=hours, minutes=minutes)
+
+
+def check_if_missed_appointment(appointment):
+    """Check if the appointment was missed. Returns a boolean."""
+    # If we have a model, convert it to a dictionary
+    if hasattr(appointment, "serialize"):
+        appointment = appointment.serialize()
+    
+    # Only active appointments can be missed
+    if appointment["status"] != "active":
+        logger.info(
+            f"[{appointment['id']}] Appointment is not active, so cannot be missed"
+        )
+        return False
+
+    # Parse the start time of the appointment
+    start_time_str = appointment["time"]
+    start_time = datetime.fromisoformat(start_time_str)
+
+    # Parse the duration of the appointment
+    duration_str = appointment["duration"]
+    duration = parse_duration(duration_str)
+
+    # Calculate the end time of the appointment
+    end_time = start_time + duration
+    logger.debug(f"[{appointment['id']}] Appointment end time: {end_time}")
+
+    # Get the current time
+    current_time = datetime.now().astimezone(start_time.tzinfo)
+    logger.debug(f"[{appointment['id']}] Current time: {current_time}")
+
+    is_missed = current_time > end_time
+    logger.debug(
+        f"[{appointment['id']}] Checking if appointment was missed: {is_missed}"
+    )
+
+    # Check if the current time is greater than the end time of the appointment
+    return is_missed

@@ -9,6 +9,14 @@
 - [x] The PANDA API does not need to handle authentication because it is used within a trusted environment.
 - [x] Errors should be reported to the user.
   
+### Data validation:
+
+- [x] Appointments can be cancelled, but cancelled appointments cannot be reinstated.
+- [ ] Appointments should be considered 'missed' if they are not set to 'attended' by the end of the appointment.
+- [ ] Ensure that all NHS numbers are checksum validated.
+- [x] Ensure that all postcodes can be coerced into the correct format.
+
+
 
 ### Soft requirements:
 
@@ -89,4 +97,6 @@ I've added in the appointments, and written some very basic tests for the endpoi
 Added some data validation functions. I tend to use Django more than flask (I only really use flask when something needs to be lightweight), so I have less experience with some of the tooling, and I've not done data validation in this framework before. Some basic research tells me that I could use tools like WTForms and Marshmallow, but I don't have time to learn a new tool right now so I'll just do it by hand. There's only a small number of checks I need, anyway.
 
 Note that my validation actually breaks the tests - some of the example postcodes are given in "wrong-ish" formats, like "AB123CD" rather than "AB12 3CD". I'll need to update them to account for that.
+
+It's just occurred to me that I didn't think to make the endpoints async. This is fine for now, but needs to be fixed later!
 

@@ -11,6 +11,7 @@ from utils.validators import (
     format_postcode,
     is_valid_appointment_status,
     is_valid_state_change,
+    check_if_missed_appointment,
 )
 
 from logging import getLogger, basicConfig, INFO, DEBUG
@@ -142,6 +143,7 @@ def get_patient(nhs_number):
         return jsonify({"message": "Patient not found"}), 404
 
     logger.debug(f"Found patient record with NHS number: {nhs_number}")
+
     return (
         jsonify(patient.serialize()),
         200,
@@ -163,11 +165,11 @@ def update_patient(nhs_number):
 
         # Can we update the NHS number?
         # patient.nhs_number = data["nhs_number"]
-        
+
         # If we got a postcode, make sure it's valid
         if "postcode" in data:
             data["postcode"] = format_postcode(data["postcode"])
-            
+
             # And if it's not, return an error
             if not data["postcode"]:
                 logger.info(f"[{nhs_number}] Invalid postcode: {data['postcode']}")
@@ -227,13 +229,13 @@ def add_appointment():
     if not validate_nhs_number(data["patient"]):
         logger.info(f"Invalid NHS number: {data['patient']}")
         return jsonify({"message": "Invalid NHS number"}), 400
-    
+
     # Format the postcode
     data["postcode"] = format_postcode(data["postcode"])
     if not data["postcode"]:
         logger.info(f"[{data['id']}] Invalid postcode: {data['postcode']}")
         return jsonify({"message": "Invalid postcode"}), 400
-    
+
     # Validate the appointment status
     if not is_valid_appointment_status(data["status"]):
         logger.info(f"Invalid appointment status: {data['status']}")
@@ -253,6 +255,15 @@ def add_appointment():
         postcode=data["postcode"],
     )
     logger.info(f"Adding appointment with ID: {new_appointment.id}")
+
+    # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
+    missed_appointment = check_if_missed_appointment(new_appointment)
+    if missed_appointment:
+        new_appointment.status = "missed"
+        logger.info(
+            f"[{new_appointment.id}] Patient did not get registered as attending their appointment before it passed, marking them as having missed it."
+        )
+
     db.session.add(new_appointment)
     db.session.commit()
     logger.info(f"Appointment {new_appointment.id} added successfully")
@@ -271,6 +282,17 @@ def get_appointment(id):
     appointment = db.session.get(Appointment, id)
     if appointment:
         logger.info(f"Found appointment with ID: {id}")
+        
+        # check if appointment is missed
+        missed_appointment = check_if_missed_appointment(appointment)
+        if missed_appointment:
+            appointment.status = "missed"
+            logger.info(
+                f"[{appointment.id}] Patient did not get registered as attending their appointment before it passed, marking them as having missed it."
+            )
+            db.session.commit()
+            logger.info(f"Appointment {appointment.id} updated successfully")
+        
         return jsonify(appointment.serialize()), 200
     else:
         logger.info(f"Appointment with ID: {id} not found")
@@ -288,7 +310,7 @@ def update_appointment(id):
 
     logger.info(f"Found appointment with ID: {id}")
     data = request.get_json()
-    
+
     # Validate the appointment status
     if "status" in data:
         if not is_valid_appointment_status(data["status"]):
@@ -301,23 +323,23 @@ def update_appointment(id):
                 f"Invalid state change: {appointment.status} -> {data['status']}"
             )
             return jsonify({"message": "Invalid state change"}), 400
-    
+
     # If we got a postcode, make sure it's valid
     if "postcode" in data:
         data["postcode"] = format_postcode(data["postcode"])
-        
+
         # And if it's not, return an error
         if not data["postcode"]:
             logger.info(f"[{id}] Invalid postcode: {data['postcode']}")
             return jsonify({"message": "Invalid postcode"}), 400
-    
-    # TODO: Can we update the patient? 
+
+    # TODO: Can we update the patient?
     if "patient" in data:
         # Validate the NHS number
         if not validate_nhs_number(data["patient"]):
             logger.info(f"Invalid NHS number: {data['patient']}")
             return jsonify({"message": "Invalid NHS number"}), 400
-    
+
     fields = [
         "patient",
         "status",
@@ -337,6 +359,16 @@ def update_appointment(id):
                 setattr(appointment, field, datetime.fromisoformat(data[field]))
             else:
                 setattr(appointment, field, data[field])
+
+    # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
+    # If the appointment date has passed, and the status is still "active" we need to set it to "missed"
+    missed_appointment = check_if_missed_appointment(appointment)
+    if missed_appointment:
+        appointment.status = "missed"
+        logger.info(
+            f"[{appointment.id}] Patient did not get registered as attending their appointment before it passed, marking them as having missed it."
+        )
+
     db.session.commit()
     logger.info(f"Appointment {id} updated successfully")
     return jsonify({"message": "Appointment updated successfully"}), 200

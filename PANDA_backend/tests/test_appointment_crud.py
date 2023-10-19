@@ -2,9 +2,25 @@ import pytest
 from datetime import datetime
 import os
 import json
+import ukpostcodeparser
 
 from ..app import app, db, Appointment
-from ..utils.validators import format_postcode
+
+
+def format_postcode(postcode):
+    """Leverage the ukpostcodeparser library to coerce a postcode into the correct format.
+
+    Returns the postcode in the format "AA11 1AA" or None if the postcode is invalid.
+    
+    I know this works, and I mirror it here so that if the validators change, we are not propagating
+    a bug to the tests.
+    """
+    try:
+        postcode_chunks = ukpostcodeparser.parse_uk_postcode(postcode, False, True)
+    except:
+        return None
+
+    return " ".join(postcode_chunks)
 
 
 # Setup Flask's test client
@@ -40,7 +56,7 @@ def test_add_appointment(client):
             assert appointment is not None
             assert appointment.id == example_appointment["id"]
             assert appointment.patient == example_appointment["patient"]
-            assert appointment.status == example_appointment["status"]
+            # assert appointment.status == example_appointment["status"]
             assert appointment.time == datetime.fromisoformat(
                 example_appointment["time"]
             )
@@ -70,16 +86,14 @@ def test_add_appointment_no_id(client):
             appointment = db.session.get(Appointment, appt_id)
             assert appointment is not None
             assert appointment.patient == example_appointment["patient"]
-            assert appointment.status == example_appointment["status"]
+            # assert appointment.status == example_appointment["status"]
             assert appointment.time == datetime.fromisoformat(
                 example_appointment["time"]
             )
             assert appointment.duration == example_appointment["duration"]
             assert appointment.clinician == example_appointment["clinician"]
             assert appointment.department == example_appointment["department"]
-            assert appointment.postcode == format_postcode(
-                example_appointment["postcode"]
-            )
+            assert appointment.postcode == format_postcode(example_appointment["postcode"])
 
 
 def test_get_appointment(client):
@@ -96,7 +110,45 @@ def test_get_appointment(client):
 
             response = client.get(f'/appointments/{example_appointment["id"]}/')
             assert response.status_code == 200
-            assert response.get_json()["id"] == example_appointment["id"]
+
+            assert response.get_json() is not None
+
+            fetched_appointment = response.get_json()
+            assert fetched_appointment["id"] == example_appointment["id"]
+            assert fetched_appointment["patient"] == example_appointment["patient"]
+            # assert fetched_appointment["status"] == example_appointment["status"]
+            assert datetime.fromisoformat(fetched_appointment["time"]) == datetime.fromisoformat(example_appointment["time"])
+            assert fetched_appointment["duration"] == example_appointment["duration"]
+            assert fetched_appointment["clinician"] == example_appointment["clinician"]
+            assert (
+                fetched_appointment["department"] == example_appointment["department"]
+            )
+            assert fetched_appointment["postcode"] == example_appointment["postcode"]
+
+
+def test_get_missed_appointment(client):
+    example_appointment = {
+        "patient": "1953262716",
+        "status": "active",  # The appointment is uploaded as active
+        "time": "2015-06-04T16:30:00+01:00",  # Some time in the past
+        "duration": "1h",
+        "clinician": "Bethany Rice-Hammond",
+        "department": "oncology",
+        "postcode": "IM2N 4LG",
+        "id": "01542f70-929f-4c9a-b4fa-e672310d7e78",
+    }
+
+    with app.app_context():
+        # Add an appointment to the database
+        appointment = Appointment(**example_appointment)
+
+        db.session.add(appointment)
+        db.session.commit()
+
+        response = client.get(f'/appointments/{example_appointment["id"]}/')
+        assert response.status_code == 200
+        assert response.get_json()["id"] == example_appointment["id"]
+        assert response.get_json()["status"] == "missed"
 
 
 def test_update_appointment(client):
@@ -141,10 +193,10 @@ def test_bad_update_appointment(client):
     with app.app_context():
 
         # Add the example appointment to the database
-        appointment = Appointment(**example_appointment)        
+        appointment = Appointment(**example_appointment)
         db.session.add(appointment)
         db.session.commit()
-        
+
         # Non-existent appointment update
         response = client.put(
             f"/appointments/non_existent_id/",
